@@ -1,4 +1,4 @@
-# JT Pump Driver
+# JT Pump Driver Firmware
 
 Firmware for the pump drivers for CPP1 micropumps: https://www.jobst-technologies.com/products/microfluidics/
 
@@ -7,4 +7,3 @@ Firmware for the pump drivers for CPP1 micropumps: https://www.jobst-technologie
 Copyright by Jobst Technologies.
 
 This project uses libraries developed by TinyCircuits: https://github.com/TinyCircuits/TinyCircuits-TinyShield-Dual-Motor-ASD2302
-   
