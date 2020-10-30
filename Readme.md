@@ -17,4 +17,4 @@ Firmware for the [evaluation kits](https://www.jobst-technologies.com/products/m
 
 Copyright by Jobst Technologies.
 
-This project uses libraries developed by [TinyCircuits](https://github.com/TinyCircuits/TinyCircuits-TinyShield-Dual-Motor-ASD2302).
+This project uses [libraries](https://github.com/TinyCircuits/TinyCircuits-TinyShield-Dual-Motor-ASD2302) developed by TinyCircuits.
