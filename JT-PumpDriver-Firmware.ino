@@ -121,10 +121,8 @@ void loop(){
     gStart2 = 0;
     // delete values from previous call
     SOrder = "0000";
-    value1 = int(0);
-    value2 = int(0);
-    value3 = int(0);
-    value4 = int(0);
+    value1 = int(0); value2 = int(0);
+    value3 = int(0); value4 = int(0);
     lengthString = inputString.length();
     // check that it was a command
     if (inputString[0] == '/') {
@@ -171,7 +169,6 @@ void loop(){
 
     // at first move position
     pos = pos + 1;
-    //Serial.println("pos: " + String(pos));
 
     // command is completely parsed or there is no command
     if ((pos == lengthString - 1) or (lengthString == 0)) { 
@@ -181,7 +178,6 @@ void loop(){
 
     // check for loop begin
     if (commandString[pos] == 'g') {
-      //Serial.println("g: " + String(pos));
       if ((gStart1 == 0) and (gStart2 == 0))
         gStart1 = pos;
       else if ((gStart1 > 0) and ( gStart2 == 0))
@@ -189,10 +185,8 @@ void loop(){
       else if ((gStart1 > 0) and ( gStart2 > 0)) {
         Serial.println("Error: only one loop inside a loop allowed");
         // stop pumps
-        motor12.setMotor(1, int(0), true);
-        motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true);
-        motor34.setMotor(2, int(0), true);
+        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
         broken = true;
         return;
       }
@@ -374,20 +368,16 @@ void loop(){
             if (commandString[pos+13] == '1') {
               value1 = value;
               SOrder[3] = '1';
-            }
-            else if (commandString[pos+13] == '2') {
+            } else if (commandString[pos+13] == '2') {
               value2 = value;
               SOrder[3] = '2';
-            }
-            else if (commandString[pos+13] == '3') {
+            } else if (commandString[pos+13] == '3') {
               value3 = value;
               SOrder[3] = '3';
-            }
-            else if (commandString[pos+13] == '4') {
+            } else if (commandString[pos+13] == '4') {
               value4 = value;
               SOrder[3] = '4';
-            }
-            else if (String(commandString[pos+13]).toInt() > 4) {
+            } else if (String(commandString[pos+13]).toInt() > 4) {
               value = int(0);
               Serial.println("Error: only 4 pumps supported, got a command for pump number '" + String(commandString[pos+13]) + "'");
               broken = true;
@@ -428,8 +418,6 @@ void loop(){
 
     // check for direction
     if (commandString[pos] == 'D') {
-      //Serial.println("D: " + String(pos));
-      //Serial.println("SOrder: " + SOrder);
       // syntax is "Dxxxx", x = direction of pump (0 or 1), it is not necessary to set all 4 possible motors
       // this is also possible: S39991999D11, then the first 1 belongs to pump 3
       if ((isDigit(commandString[pos+1])) and (String(SOrder[0]).toInt() > 0) ) { // ignore if there is not any 'S' statement
@@ -524,9 +512,8 @@ void loop(){
 
     // check for on/off
     if (commandString[pos] == 'I') {
-      //Serial.println("I: " + String(pos));
       // syntax is "Innnn" while it is not necessary to set all 4 possible motors
-      // in contrary for security resons, the first digit ofert the 'I' is the one for pump 1 and so on
+      // however, for security reasons, the first digit after the 'I' is the one for pump 1 and so on
       // so e.g. for /0S39991999I11R only the first pump will run
       if (isDigit(commandString[pos+1])) {
         if (String(commandString[pos+1]).toInt() > 1) {
@@ -626,12 +613,10 @@ void loop(){
         motor34.setMotor(2, value4, true);
       if (!motor4)
         motor34.setMotor(2, int(0), true);
-      //Serial.println("pump state: "+String(motor1)+" : "+String(motor2)+" : "+String(motor3)+" : "+String(motor4));
     } // end if commandString[pos] == 'I'
 
     // check for time
     if (commandString[pos] == 'M') {
-      //Serial.println("M: " + String(pos));
       // syntax is "Mx" where x can have as many digits as long as the user wants
       // we must assure the first character after the 'M' is a digit
       if (!isDigit(commandString[pos+1])) {
@@ -686,16 +671,13 @@ void loop(){
 
     // check for loop end
     if (commandString[pos] == 'G') {
-      //Serial.println("G: " + String(pos));
       // syntax is "Gx" where x can have as many digits as long as the user wants
       // stop if there is a 'G' without a matching 'g'
       if ((gStart1 == 0) and (gStart2 == 0)) {
         Serial.println("Error: end loop statement 'G' does not match a begin loop statement 'g'");
         broken = true;
-        motor12.setMotor(1, int(0), true);
-        motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true);
-        motor34.setMotor(2, int(0), true);
+        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
         return;
         }
       // care of inner loop
@@ -782,10 +764,8 @@ void loop(){
       if ((gStart1 > 0) or (gStart2 > 0)) { // we have an unfinished loop
         Serial.println("Error: missing end loop statement 'G'");
         broken = true;
-        motor12.setMotor(1, int(0), true);
-        motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true);
-        motor34.setMotor(2, int(0), true);
+        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
         return;
       } else
         Serial.println(" Command sucessfully executed and finished");
