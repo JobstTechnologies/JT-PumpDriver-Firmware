@@ -5,6 +5,7 @@
    Spnnn..speed, p is the pump number, nnn is the speed in the range 000 - 999 where 999 means a voltage of 3.3V
    Dpppppppp..direction, p is the direction (0 or 1) of the corresonding pump number
    Ipppppppp..set, p is the on/off switch (0 or 1) of the corresonding pump number
+   Vvvvvvvvv..set, v is the on/off switch (0 or 1) of the corresonding valve number
    Mnnnn..time, nnnn is the time in milliseconds the pumps should be in the previously defined state,
                 the maximal time is 2^31-1 milliseconds (24.85 days)
                 (The frontend program "JT pump driver" will take care of this for you.)
@@ -21,6 +22,7 @@
   Always test using these commands before releasing a new firmware version:
    General:
   /0LS1999D00000000I10000000M500I00000000M500S1999D00000000I10001000M500I0000000lR - > 2 steps
+  /0LS2999D01I11V1M3000I00V0M2000S2999D10I11V1M3000I00V0lR - > 2 steps with 1 pump and 1 valve
   /0LS1999399959997999D1010I1111111M500I00000000M500S1999399959997999D1010I1111111M500I0000lR - > 2 steps, 4 pumps, pumps 1, 3, 5 and 7
   /0LS7999599939991999D10I1111111M500I0000M500S7999599939991999D10I1111111M500I00000000lR - > 2 steps, 4 pumps, pumps 7, 5, 3 and 1
   /0LI11111111R - > nothing executed, LED on
@@ -69,7 +71,7 @@
 #include "MotorDriver.h"
 #define Serial SerialUSB
 
-String VersionNumber = "2.0";
+String VersionNumber = "3.0";
 
 MotorDriver motor12(0); // value is the address: removed R1 for 1, R2 for 2, R1 and R2 for 3
 MotorDriver motor34(1);
@@ -82,8 +84,13 @@ int pos = 0, gStart1 = 0, gStart2 = 0, CountLoop1 = -2, CountLoop2 = -2, Counter
 int value = 0, value1 = 0, value2 = 0, value3 = 0, value4 = 0, value5 = 0, value6 = 0, value7 = 0, value8 = 0,
     direct1 = 0, direct2 = 0, direct3 = 0, direct4 = 0;
 String inputString = "", commandString = " ", SOrder = "0000";
-bool stringComplete = false, broken = false, motor1 = false, motor2 = false, motor3 = false, motor4 = false,
-     motor5 = false, motor6 = false, motor7 = false, motor8 = false;
+bool stringComplete = false, broken = false,
+ motor1 = false, motor2 = false, motor3 = false, motor4 = false,
+ motor5 = false, motor6 = false, motor7 = false, motor8 = false,
+ valve1 = false, valve2 = false, valve3 = false, valve4 = false,
+ valve5 = false, valve6 = false, valve7 = false, valve8 = false,
+ isChangedValve1 = false, isChangedValve2 = false, isChangedValve3 = false, isChangedValve4 = false,
+ isChangedValve5 = false, isChangedValve6 = false, isChangedValve7 = false, isChangedValve8 = false;
 unsigned long timer = 0;
 
 void setup(){
@@ -93,6 +100,11 @@ void setup(){
     ; // wait for serial port to connect. Needed for native USB
   // reserve 1000 bytes for the inputString:
   inputString.reserve(1000);
+  // enable 8 digital outputs
+  pinMode(1, OUTPUT); pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT); pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT); pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT); pinMode(8, OUTPUT);
   // enable LED
   pinMode(13, OUTPUT);
   // initiate the Wire library and join the I2C bus as a master or slave
@@ -134,11 +146,6 @@ void loop(){
     gStart1 = 0;
     gStart2 = 0;
     // delete values from previous call
-    SOrder = "0000";
-    value1 = int(0); value2 = int(0);
-    value3 = int(0); value4 = int(0);
-    value5 = int(0); value6 = int(0);
-    value7 = int(0); value8 = int(0);
     lengthString = inputString.length();
     // check that it was a command
     if (inputString[0] == '/') {
@@ -220,10 +227,8 @@ void loop(){
       // the order can be varied, e.g. S35001500
       SOrder = "00000000";
       // delete values from previous call of 'S'
-      value1 = int(0); value2 = int(0);
-      value3 = int(0); value4 = int(0);
-      value5 = int(0); value6 = int(0);
-      value7 = int(0); value8 = int(0);
+      value1 = int(0); value2 = int(0); value3 = int(0); value4 = int(0);
+      value5 = int(0); value6 = int(0); value7 = int(0); value8 = int(0);
       if (isDigit(commandString[pos+1])) {
         // check if the next characters are numbers, then read them
         for (int j = pos+1; j < lengthString; j++) {
@@ -1024,7 +1029,7 @@ void loop(){
       }
     } // end if commandString[pos] == 'D'
 
-    // check for on/off
+    // check for pump on/off
     if (commandString[pos] == 'I') {
       //Serial.println("I: " + String(pos));
       // syntax is "Innnnnnnn" while it is not necessary to set all 8 possible motors
@@ -1254,6 +1259,212 @@ void loop(){
         motor78.setMotor(2, int(0), true);
       //Serial.println("pump state: "+String(motor1)+" : "+String(motor2)+" : "+String(motor3)+" : "+String(motor4));
     } // end if commandString[pos] == 'I'
+
+    // check for pump on/off
+    if (commandString[pos] == 'V') {
+      //Serial.println("V: " + String(pos));
+      // syntax is "Vnnnnnnnn" while it is not necessary to set all 8 possible valves
+
+      isChangedValve1 = false; isChangedValve2 = false; isChangedValve3 = false; isChangedValve4 = false;
+      isChangedValve5 = false; isChangedValve6 = false; isChangedValve7 = false; isChangedValve8 = false;
+      
+       if (isDigit(commandString[pos+1])) {
+        if (String(commandString[pos+1]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+1]) + "'");
+          broken = true;
+          valve1 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve1 = true;
+        if (commandString[pos+1] == '1')
+          valve1 = true;
+        else
+          valve1 = false;
+      } else {
+        valve1 = false;
+        // if there is no digit, we must break
+        Serial.println("Error: no value given for on/off setting 'V'");
+        broken = true;
+        // stop pumps
+        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+        motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+        return;
+      }
+      // check for second valve
+      if (isDigit(commandString[pos+2])) {
+        if (String(commandString[pos+2]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+2]) + "'");
+          broken = true;
+          valve2 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve2 = true;
+        if (commandString[pos+2] == '1')
+          valve2 = true;
+        else
+          valve2 = false;
+      } else {
+        // there was only 1 digit
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+3])) {
+        if (String(commandString[pos+3]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
+          broken = true;
+          valve3 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve3 = true;
+        if (commandString[pos+3] == '1')
+          valve3 = true;
+        else
+          valve3 = false;
+      } else {
+        // there were only 2 digits
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+4])) {
+        if (String(commandString[pos+4]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
+          broken = true;
+          valve4 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve4 = true;
+        if (commandString[pos+4] == '1')
+          valve4 = true;
+        else
+          valve4 = false;
+      } else {
+        // there were only 3 digits
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+5])) {
+        if (String(commandString[pos+5]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
+          broken = true;
+          valve5 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve5 = true;
+        if (commandString[pos+5] == '1')
+          valve5 = true;
+        else
+          valve5 = false;
+      } else {
+        // there were only 4 digits
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+6])) {
+        if (String(commandString[pos+6]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
+          broken = true;
+          valve6 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve6 = true;
+        if (commandString[pos+6] == '1')
+          valve6 = true;
+        else
+          valve6 = false;
+      } else {
+        // there were only 5 digits
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+7])) {
+        if (String(commandString[pos+7]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
+          broken = true;
+          valve7 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve7 = true;
+        if (commandString[pos+7] == '1')
+          valve7 = true;
+        else
+          valve7 = false;
+      } else {
+        // there were only 6 digits
+        goto ValveExecute;
+      }
+      if (isDigit(commandString[pos+8])) {
+        if (String(commandString[pos+8]).toInt() > 1) {
+          Serial.println("Error: value of on/off setting 'V' can only be 0 or 1, got '" + String(commandString[pos+4]) + "'");
+          broken = true;
+          valve8 = false;
+          // stop pumps
+          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          motor56.setMotor(1, int(0), true); motor56.setMotor(2, int(0), true);
+          motor78.setMotor(1, int(0), true); motor78.setMotor(2, int(0), true);
+          return;
+        }
+        isChangedValve8 = true;
+        if (commandString[pos+8] == '1')
+          valve8 = true;
+        else
+          valve8 = false;
+      } else
+        // there were only 7 digits
+        ;
+      // execute the valve actions
+      // only execute if there is a state change
+      ValveExecute:
+      if (isChangedValve1)
+        digitalWrite(1, valve1);
+      if (isChangedValve2)
+        digitalWrite(2, valve2);
+      if (isChangedValve3)
+        digitalWrite(3, valve3);
+      if (isChangedValve4)
+        digitalWrite(4, valve4);
+      if (isChangedValve5)
+        digitalWrite(5, valve5);
+      if (isChangedValve6)
+        digitalWrite(6, valve6);
+      if (isChangedValve7)
+        digitalWrite(7, valve7);
+      if (isChangedValve8)
+        digitalWrite(8, valve8);
+      //Serial.println("valve state: "+String(valve1)+" : "+String(valve2)+" : "+String(valve3)+" : "+String(valve4));
+    } // end if commandString[pos] == 'V'
 
     // check for time
     if (commandString[pos] == 'M') {
