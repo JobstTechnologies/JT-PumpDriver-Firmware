@@ -185,9 +185,7 @@ void loop(){
         gStart2 = pos;
       else if ((gStart1 > 0) and ( gStart2 > 0)) {
         Serial.println("Error: only one loop inside a loop allowed");
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         broken = true;
         return;
       }
@@ -216,9 +214,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: speed setting 'S' requires at least 4 digits, got " + String(endPos - (pos+1)));
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             // translate value from range 0 - 999 to the range 0 - 330
@@ -240,9 +236,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: only 4 pumps supported, got a command for pump number '" + String(commandString[pos+1]) + "'");
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             break;
@@ -252,9 +246,7 @@ void loop(){
         value = int(0);
         Serial.println("Error: no value given for speed setting 'S'");
         broken = true;
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         return;
       }
       if (endPos - (pos+1) == 4) // we only got command for one pump and are done
@@ -270,9 +262,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: speed setting 'S' for 2 pumps requires 8 digits, got " + String(endPos - (pos+1)));
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             value = ceil(value * 0.33);
@@ -292,9 +282,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: only 4 pumps supported, got a command for pump number '" + String(commandString[pos+5]) + "'");
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             break;
@@ -315,9 +303,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: speed setting 'S' for 3 pumps requires 12 digits, got " + String(endPos - (pos+1)));
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             value = ceil(value * 0.33);
@@ -337,9 +323,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: only 4 pumps supported, got a command for pump number '" + String(commandString[pos+9]) + "'");
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             break;
@@ -360,9 +344,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: speed setting 'S' for 4 pumps requires 16 digits, got " + String(endPos - (pos+1)));
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             value = ceil(value * 0.33);
@@ -382,9 +364,7 @@ void loop(){
               value = int(0);
               Serial.println("Error: only 4 pumps supported, got a command for pump number '" + String(commandString[pos+13]) + "'");
               broken = true;
-              // stop pumps
-              motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-              motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+              stopPumps();
               return;
             }
             break;
@@ -409,9 +389,7 @@ void loop(){
           broken = true;
         }
       if (broken) {
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         return;
       }
     } // end if (commandString[pos] == 'S')
@@ -425,9 +403,7 @@ void loop(){
         if (String(commandString[pos+1]).toInt() > 1) {
           Serial.println("Error: value of direction setting 'D' can only be 0 or 1, got '" + String(commandString[pos+1]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+1] == '1') {
@@ -443,9 +419,7 @@ void loop(){
       } else if (!isDigit(commandString[pos+1])) {
         Serial.println("Error: no value given for direction setting 'D'");
         broken = true;
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         return;
       }
       // only check for second direction if there is a second pump 'S' command
@@ -453,9 +427,7 @@ void loop(){
         if (String(commandString[pos+2]).toInt() > 1) {
           Serial.println("Error: value of direction setting 'D' can only be 0 or 1, got '" + String(commandString[pos+2]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+2] == '1') {
@@ -473,9 +445,7 @@ void loop(){
         if (String(commandString[pos+3]).toInt() > 1) {
           Serial.println("Error: value of direction setting 'D' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+3] == '1') {
@@ -493,9 +463,7 @@ void loop(){
         if (String(commandString[pos+4]).toInt() > 1) {
           Serial.println("Error: value of direction setting 'D' can only be 0 or 1, got '" + String(commandString[pos+4]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+4] == '1') {
@@ -520,9 +488,7 @@ void loop(){
         if (String(commandString[pos+1]).toInt() > 1) {
           Serial.println("Error: value of on/off setting 'I' can only be 0 or 1, got '" + String(commandString[pos+1]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+1] == '1')
@@ -534,9 +500,7 @@ void loop(){
         // if there is no digit, we must break
         Serial.println("Error: no value given for on/off setting 'I'");
         broken = true;
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         return;
       }
       // only check for second direction if there is a second pump 'S' command
@@ -544,9 +508,7 @@ void loop(){
         if (String(commandString[pos+2]).toInt() > 1) {
           Serial.println("Error: value of on/off setting 'I' can only be 0 or 1, got '" + String(commandString[pos+2]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+2] == '1')
@@ -564,9 +526,7 @@ void loop(){
         if (String(commandString[pos+3]).toInt() > 1) {
           Serial.println("Error: value of on/off setting 'I' can only be 0 or 1, got '" + String(commandString[pos+3]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+3] == '1')
@@ -583,9 +543,7 @@ void loop(){
         if (String(commandString[pos+4]).toInt() > 1) {
           Serial.println("Error: value of on/off setting 'I' can only be 0 or 1, got '" + String(commandString[pos+4]) + "'");
           broken = true;
-          // stop pumps
-          motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-          motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+          stopPumps();
           return;
         }
         if (commandString[pos+4] == '1')
@@ -621,9 +579,7 @@ void loop(){
       // syntax is "Mx" where x can have as many digits as long as the user wants
       // we must assure the first character after the 'M' is a digit
       if (!isDigit(commandString[pos+1])) {
-        // stop pumps
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         Serial.println("Error: no value given for time setting 'M'");
         broken = true;
         return;
@@ -677,8 +633,7 @@ void loop(){
       if ((gStart1 == 0) and (gStart2 == 0)) {
         Serial.println("Error: end loop statement 'G' does not match a begin loop statement 'g'");
         broken = true;
-        motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
-        motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+        stopPumps();
         return;
         }
       // care of inner loop
@@ -797,3 +752,11 @@ void serialRead() {
     }
   }
 } // end void serialRead()
+
+//---------------------------------------------------------------------------------------------------------------------
+
+// stops all pumps
+void stopPumps() {
+  motor12.setMotor(1, int(0), true); motor12.setMotor(2, int(0), true);
+  motor34.setMotor(1, int(0), true); motor34.setMotor(2, int(0), true);
+} // end void stopPumps()
