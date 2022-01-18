@@ -479,7 +479,7 @@ void loop(){
         value = int(0);
       if (endPos - (pos+13) == 4) // we only got command for 4 pumps and are done
         return;
-    // now check for a fifth speed
+      // now check for a fifth speed
       if (isDigit(commandString[pos+17])) {
         for (int j = pos+17; j < lengthString; j++) {
           if (isDigit(commandString[j]) == false) {
