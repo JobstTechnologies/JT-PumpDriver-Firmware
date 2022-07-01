@@ -7,8 +7,8 @@ Firmware for the [evaluation kits](https://www.jobst-technologies.com/products/m
 - Download the [latest binary release](https://github.com/JobstTechnologies/JT-PumpDriver-Firmware/releases/latest).
 - Connect your pump driver to the PC.
 - Either
-  - Run the program [**JT Pump Driver**](https://github.com/JobstTechnologies/JT-Pump-Driver/releases/latest).
-  - Connect in JT Pump Driver to the pump driver and use the menu *Miscellaneous → Firmware Update*.
+  - Run the program [**JT Pump Driver**](https://github.com/JobstTechnologies/JT-Pump-Driver/releases/latest) or [**JT Driver Sensing**](https://github.com/JobstTechnologies/JT-Driver-Sensing).
+  - Connect in the program to the pump driver and use the menu *Miscellaneous → Firmware Update*.
   - Follow the steps provided by the software.
 - Or
   - Execute the command line program [**JT COM Connector**](https://github.com/JobstTechnologies/JT-COM-Connector/releases/latest). 
