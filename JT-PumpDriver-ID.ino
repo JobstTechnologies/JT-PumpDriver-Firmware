@@ -21,7 +21,7 @@ void setup()
   delay(2000);
   String testID;
   EEPROM.get(0, testID);
-  Serial.println("Success. Pump driver ID is now :" + testID);
+  Serial.println("Success. Pump driver ID is now: " + testID);
 }
 
 void loop() {
