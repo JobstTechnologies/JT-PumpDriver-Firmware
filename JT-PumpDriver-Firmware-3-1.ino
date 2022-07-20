@@ -1,4 +1,12 @@
 /*
+  Copyright (c) 2022 Uwe Stöhr
+  
+  This file is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+*/
+/*
    Syntax for read commands
    /n.. opening command, n is the address, currently only '0' is allowed as address
    R..execute
@@ -68,10 +76,11 @@
 */
 
 #include <Wire.h>
+#include "EEPROM-PD.h"
 #include "MotorDriver.h"
 #define Serial SerialUSB
 
-String VersionNumber = "3.0";
+String VersionNumber = "3.1";
 
 MotorDriver motor12(0); // value is the address: removed R1 for 1, R2 for 2, R1 and R2 for 3
 MotorDriver motor34(1);
@@ -83,7 +92,7 @@ int timeDelay = 0, endPos = 0, lengthString = 0, i = 0;
 int pos = 0, gStart1 = 0, gStart2 = 0, CountLoop1 = -2, CountLoop2 = -2, CounterLoop1 = 0, CounterLoop2 = 0;
 int value = 0, value1 = 0, value2 = 0, value3 = 0, value4 = 0, value5 = 0, value6 = 0, value7 = 0, value8 = 0,
     direct1 = 0, direct2 = 0, direct3 = 0, direct4 = 0;
-String inputString = "", commandString = " ", SOrder = "0000";
+String inputString = "", commandString = " ", SOrder = "0000", ID ="0000";
 bool stringComplete = false, broken = false,
  motor1 = false, motor2 = false, motor3 = false, motor4 = false,
  motor5 = false, motor6 = false, motor7 = false, motor8 = false,
@@ -125,6 +134,10 @@ void setup(){
   motor78.setFailsafe(1000);
   // set timeout for sending serial commands
   Serial.setTimeout(1000);
+  // get data from the virtual EEPROM at position 0
+  EEPROM.get(0, ID);
+  if (ID == "")
+   ID = "0000";
 }
 
 void loop(){
@@ -137,7 +150,9 @@ void loop(){
 
   // print the string when a newline arrives:
   if (stringComplete) {
-    Serial.println("JT-PumpDriver-Firmware " + VersionNumber + "\n Received command: " + inputString);
+    Serial.println("JT-PumpDriver-ID " + ID +
+                   "\nJT-PumpDriver-Firmware " + VersionNumber + 
+                   "\n Received command: " + inputString);   
     // reset loop variables
     CountLoop1 = -2;
     CountLoop2 = -2;
