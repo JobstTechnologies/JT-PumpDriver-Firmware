@@ -87,8 +87,7 @@ MotorDriver motor34(1);
 MotorDriver motor56(2);
 MotorDriver motor78(3);
 
-int maxPWM = 330;
-int timeDelay = 0, endPos = 0, lengthString = 0, i = 0;
+int maxPWM = 330, timeDelay = 0, endPos = 0, lengthString = 0, i = 0;
 int pos = 0, gStart1 = 0, gStart2 = 0, CountLoop1 = -2, CountLoop2 = -2, CounterLoop1 = 0, CounterLoop2 = 0;
 int value = 0, value1 = 0, value2 = 0, value3 = 0, value4 = 0, value5 = 0, value6 = 0, value7 = 0, value8 = 0,
     direct1 = 0, direct2 = 0, direct3 = 0, direct4 = 0;
@@ -135,9 +134,10 @@ void setup(){
   // set timeout for sending serial commands
   Serial.setTimeout(1000);
   // get data from the virtual EEPROM at position 0
-  EEPROM.get(0, ID);
-  if (ID == "")
-   ID = "0000";
+  // but check if there is a virtual EEPROM (cell read < 255)
+  // otherwise we can break the board that no new flash is possible
+  if (EEPROM.read(0) != 255)
+   EEPROM.get(0, ID);
 }
 
 void loop(){
@@ -150,9 +150,14 @@ void loop(){
 
   // print the string when a newline arrives:
   if (stringComplete) {
-    Serial.println("JT-PumpDriver-ID " + ID +
-                   "\nJT-PumpDriver-Firmware " + VersionNumber + 
-                   "\n Received command: " + inputString);   
+    // only output ID if there is any
+    if (ID != "0000")
+     Serial.println("JT-PumpDriver-ID " + ID +
+                    "\nJT-PumpDriver-Firmware " + VersionNumber + 
+                    "\n Received command: " + inputString);
+    else
+     Serial.println("JT-PumpDriver-Firmware " + VersionNumber + 
+                    "\n Received command: " + inputString);
     // reset loop variables
     CountLoop1 = -2;
     CountLoop2 = -2;
