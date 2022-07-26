@@ -1489,9 +1489,6 @@ void serialRead() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    // add it to the inputString:
-    if (useData)
-     inputString += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something with the command.
     if (inChar == '\n') {
@@ -1500,6 +1497,9 @@ void serialRead() {
      // input buffer is just 512 chars, therefor just throw them away
      useData = false;
     }
+    // add char to the inputString:
+    if (useData)
+     inputString += inChar;
   }
 } // end void serialRead()
 
